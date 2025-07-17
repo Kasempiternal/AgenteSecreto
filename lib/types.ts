@@ -1,6 +1,7 @@
 export type CardType = 'red' | 'blue' | 'neutral' | 'assassin';
-export type GamePhase = 'start' | 'leader-view' | 'playing' | 'game-over';
+export type GamePhase = 'start' | 'mode-selection' | 'leader-view' | 'two-player-red-view' | 'two-player-blue-view' | 'playing' | 'game-over';
 export type Team = 'red' | 'blue';
+export type GameMode = 'normal' | 'two-player';
 
 export interface Card {
   word: string;
@@ -18,6 +19,7 @@ export interface GameState {
   winner: Team | null;
   startingTeam: Team;
   showingLeaderView: boolean;
+  gameMode: GameMode;
 }
 
 export interface GridLayout {

@@ -14,13 +14,22 @@ Una versión web del popular juego de mesa Codenames (Agente Secreto), optimizad
 
 ## Cómo Jugar
 
-1. Haz clic en "¡EMPEZAR JUEGO!"
-2. Los líderes de equipo hacen clic en "OK - VER COLORES" para ver la distribución
+### Modo Normal (para 4+ jugadores)
+1. Haz clic en "MODO NORMAL"
+2. Los líderes de ambos equipos hacen clic en "OK - VER COLORES" para ver la distribución
 3. Toma una foto o captura de pantalla de los colores
 4. Haz clic en "EMPEZAR JUEGO" para comenzar
 5. Los equipos se turnan para adivinar sus palabras
 6. Gana el equipo que encuentre todas sus palabras primero
 7. ¡Cuidado con el asesino (carta negra)!
+
+### Modo Dos Jugadores (para 2 jugadores)
+1. Haz clic en "MODO DOS JUGADORES"
+2. El jugador ROJO ve primero sus cartas rojas (sin que el azul mire)
+3. Luego el jugador AZUL ve sus cartas azules (sin que el rojo mire)
+4. Haz clic en "EMPEZAR JUEGO" para comenzar
+5. Los jugadores se turnan para adivinar sus palabras
+6. Cada jugador solo conoce la ubicación de sus propias cartas y el asesino
 
 ## Despliegue en Vercel
 

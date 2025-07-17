@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GameState, Team } from '@/lib/types';
+import { GameState, Team, GameMode } from '@/lib/types';
 import { generateCards, getRandomStartingTeam, checkWinner, getRemainingCards } from '@/lib/gameLogic';
 import GameGrid from './GameGrid';
 import Scoreboard from './Scoreboard';
@@ -17,7 +17,8 @@ export default function Game() {
       phase: 'start',
       winner: null,
       startingTeam,
-      showingLeaderView: false
+      showingLeaderView: false,
+      gameMode: 'normal'
     };
   });
 
@@ -35,14 +36,27 @@ export default function Game() {
       phase: 'start',
       winner: null,
       startingTeam,
-      showingLeaderView: false
+      showingLeaderView: false,
+      gameMode: 'normal'
     });
     setShowEmergencyColors(false);
     setAssassinFlash(false);
   };
 
+  const selectGameMode = (mode: GameMode) => {
+    setGameState(prev => ({ ...prev, gameMode: mode, phase: 'mode-selection' }));
+  };
+
   const showLeaderView = () => {
-    setGameState(prev => ({ ...prev, phase: 'leader-view', showingLeaderView: false }));
+    if (gameState.gameMode === 'two-player') {
+      setGameState(prev => ({ ...prev, phase: 'two-player-red-view', showingLeaderView: false }));
+    } else {
+      setGameState(prev => ({ ...prev, phase: 'leader-view', showingLeaderView: false }));
+    }
+  };
+
+  const showBlueTeamView = () => {
+    setGameState(prev => ({ ...prev, phase: 'two-player-blue-view', showingLeaderView: false }));
   };
 
   const startPlaying = () => {
@@ -121,11 +135,40 @@ export default function Game() {
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-8">AGENTE SECRETO</h1>
+            <div className="space-y-4">
+              <button
+                onClick={() => selectGameMode('normal')}
+                className="block w-full bg-blue-500 text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-blue-600 active:scale-95 transition-all"
+              >
+                MODO NORMAL
+              </button>
+              <button
+                onClick={() => selectGameMode('two-player')}
+                className="block w-full bg-purple-500 text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-purple-600 active:scale-95 transition-all"
+              >
+                MODO DOS JUGADORES
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {gameState.phase === 'mode-selection' && (
+        <div className="flex-1 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              {gameState.gameMode === 'two-player' ? 'MODO DOS JUGADORES' : 'MODO NORMAL'}
+            </h2>
+            <p className="text-center mb-6">
+              {gameState.gameMode === 'two-player' 
+                ? 'En este modo, primero el jugador rojo verá sus cartas, luego el jugador azul verá las suyas.'
+                : 'Los líderes de ambos equipos verán los colores de las cartas al mismo tiempo.'}
+            </p>
             <button
               onClick={showLeaderView}
-              className="bg-blue-500 text-white px-8 py-4 rounded-lg text-xl font-bold hover:bg-blue-600 active:scale-95 transition-all"
+              className="w-full bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 active:scale-95 transition-all"
             >
-              ¡EMPEZAR JUEGO!
+              CONTINUAR
             </button>
           </div>
         </div>
@@ -177,6 +220,120 @@ export default function Game() {
             <button
               onClick={startPlaying}
               className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-600 active:scale-95 transition-all"
+            >
+              EMPEZAR JUEGO
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Two-player mode: Red team view */}
+      {gameState.phase === 'two-player-red-view' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center text-red-500">JUGADOR ROJO</h2>
+            <p className="text-center mb-6">
+              Solo el jugador del equipo ROJO debe ver la pantalla. 
+              Al hacer clic en OK, verás tus cartas rojas.
+            </p>
+            <div className="mb-6 text-center">
+              <p className="text-sm text-gray-600 mb-2">Equipo que empieza:</p>
+              <p className={`text-2xl font-bold ${gameState.startingTeam === 'red' ? 'text-red-500' : 'text-blue-500'}`}>
+                {gameState.startingTeam === 'red' ? 'ROJO (9 cartas)' : 'AZUL (9 cartas)'}
+              </p>
+            </div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, showingLeaderView: true }))}
+              className="w-full bg-red-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-600 active:scale-95 transition-all"
+            >
+              OK - VER MIS CARTAS ROJAS
+            </button>
+          </div>
+        </div>
+      )}
+
+      {gameState.phase === 'two-player-red-view' && gameState.showingLeaderView && (
+        <div className="flex-1 flex flex-col p-2 relative">
+          <div className="mb-2 text-center">
+            <p className="text-sm font-bold text-red-500">VISTA DEL JUGADOR ROJO</p>
+            <p className={`text-lg font-bold ${gameState.startingTeam === 'red' ? 'text-red-500' : 'text-blue-500'}`}>
+              Empieza: {gameState.startingTeam === 'red' ? 'ROJO' : 'AZUL'}
+            </p>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center overflow-y-auto min-h-0">
+            <GameGrid
+              cards={gameState.cards.map(card => ({
+                ...card,
+                type: card.type === 'red' || card.type === 'assassin' ? card.type : 'neutral'
+              }))}
+              onCardReveal={() => {}}
+              showColors={true}
+              disabled={true}
+            />
+          </div>
+
+          <div className="sticky bottom-0 bg-gray-100 p-4">
+            <button
+              onClick={showBlueTeamView}
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-600 active:scale-95 transition-all"
+            >
+              CONTINUAR AL JUGADOR AZUL
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Two-player mode: Blue team view */}
+      {gameState.phase === 'two-player-blue-view' && (
+        <div className="flex-1 flex flex-col items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 className="text-2xl font-bold mb-4 text-center text-blue-500">JUGADOR AZUL</h2>
+            <p className="text-center mb-6">
+              Solo el jugador del equipo AZUL debe ver la pantalla. 
+              Al hacer clic en OK, verás tus cartas azules.
+            </p>
+            <div className="mb-6 text-center">
+              <p className="text-sm text-gray-600 mb-2">Equipo que empieza:</p>
+              <p className={`text-2xl font-bold ${gameState.startingTeam === 'red' ? 'text-red-500' : 'text-blue-500'}`}>
+                {gameState.startingTeam === 'red' ? 'ROJO (9 cartas)' : 'AZUL (9 cartas)'}
+              </p>
+            </div>
+            <button
+              onClick={() => setGameState(prev => ({ ...prev, showingLeaderView: true }))}
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-600 active:scale-95 transition-all"
+            >
+              OK - VER MIS CARTAS AZULES
+            </button>
+          </div>
+        </div>
+      )}
+
+      {gameState.phase === 'two-player-blue-view' && gameState.showingLeaderView && (
+        <div className="flex-1 flex flex-col p-2 relative">
+          <div className="mb-2 text-center">
+            <p className="text-sm font-bold text-blue-500">VISTA DEL JUGADOR AZUL</p>
+            <p className={`text-lg font-bold ${gameState.startingTeam === 'red' ? 'text-red-500' : 'text-blue-500'}`}>
+              Empieza: {gameState.startingTeam === 'red' ? 'ROJO' : 'AZUL'}
+            </p>
+          </div>
+          
+          <div className="flex-1 flex items-center justify-center overflow-y-auto min-h-0">
+            <GameGrid
+              cards={gameState.cards.map(card => ({
+                ...card,
+                type: card.type === 'blue' || card.type === 'assassin' ? card.type : 'neutral'
+              }))}
+              onCardReveal={() => {}}
+              showColors={true}
+              disabled={true}
+            />
+          </div>
+
+          <div className="sticky bottom-0 bg-gray-100 p-4">
+            <button
+              onClick={startPlaying}
+              className="w-full bg-green-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-600 active:scale-95 transition-all"
             >
               EMPEZAR JUEGO
             </button>
