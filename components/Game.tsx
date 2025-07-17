@@ -23,6 +23,7 @@ export default function Game() {
 
   const [showEmergencyColors, setShowEmergencyColors] = useState(false);
   const [isLandscape, setIsLandscape] = useState(false);
+  const [assassinFlash, setAssassinFlash] = useState(false);
 
   const startNewGame = () => {
     const startingTeam = getRandomStartingTeam();
@@ -37,6 +38,7 @@ export default function Game() {
       showingLeaderView: false
     });
     setShowEmergencyColors(false);
+    setAssassinFlash(false);
   };
 
   const showLeaderView = () => {
@@ -59,7 +61,6 @@ export default function Game() {
     const newCards = [...gameState.cards];
     newCards[index] = { ...card, revealed: true };
 
-    let newTeam = gameState.currentTeam;
     let newRedScore = gameState.redScore;
     let newBlueScore = gameState.blueScore;
 
@@ -70,17 +71,25 @@ export default function Game() {
     }
 
     if (card.type === 'assassin') {
+      // Trigger flash effect
+      setAssassinFlash(true);
+      setTimeout(() => setAssassinFlash(false), 1500);
+      
+      // Add a short delay to show the death animation before game over
+      setTimeout(() => {
+        setGameState({
+          ...gameState,
+          cards: newCards,
+          phase: 'game-over',
+          winner: gameState.currentTeam === 'red' ? 'blue' : 'red'
+        });
+      }, 1500);
+      
       setGameState({
         ...gameState,
-        cards: newCards,
-        phase: 'game-over',
-        winner: gameState.currentTeam === 'red' ? 'blue' : 'red'
+        cards: newCards
       });
       return;
-    }
-
-    if (card.type !== gameState.currentTeam) {
-      newTeam = gameState.currentTeam === 'red' ? 'blue' : 'red';
     }
 
     const winner = checkWinner(newCards);
@@ -88,7 +97,7 @@ export default function Game() {
     setGameState({
       ...gameState,
       cards: newCards,
-      currentTeam: newTeam,
+      currentTeam: gameState.currentTeam, // Keep the same team
       redScore: newRedScore,
       blueScore: newBlueScore,
       phase: winner ? 'game-over' : 'playing',
@@ -107,7 +116,7 @@ export default function Game() {
   const blueTotal = gameState.startingTeam === 'blue' ? 9 : 8;
 
   return (
-    <div className={`h-screen w-screen flex flex-col bg-gray-100 overflow-hidden ${isLandscape ? 'landscape-container' : ''}`}>
+    <div className={`h-screen w-screen flex flex-col bg-gray-100 overflow-hidden ${isLandscape ? 'landscape-container' : ''} ${assassinFlash ? 'assassin-flash' : ''}`}>
       {gameState.phase === 'start' && (
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="text-center">
@@ -147,7 +156,7 @@ export default function Game() {
       )}
 
       {gameState.phase === 'leader-view' && gameState.showingLeaderView && (
-        <div className="flex-1 flex flex-col p-2">
+        <div className="flex-1 flex flex-col p-2 relative">
           <div className="mb-2 text-center">
             <p className="text-sm font-bold">VISTA DE LÍDER - Toma una foto ahora</p>
             <p className={`text-lg font-bold ${gameState.startingTeam === 'red' ? 'text-red-500' : 'text-blue-500'}`}>
@@ -155,7 +164,7 @@ export default function Game() {
             </p>
           </div>
           
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center overflow-y-auto min-h-0">
             <GameGrid
               cards={gameState.cards}
               onCardReveal={() => {}}
@@ -164,18 +173,20 @@ export default function Game() {
             />
           </div>
 
-          <button
-            onClick={startPlaying}
-            className="bg-blue-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-600 active:scale-95 transition-all m-4"
-          >
-            EMPEZAR JUEGO
-          </button>
+          <div className="sticky bottom-0 bg-gray-100 p-4">
+            <button
+              onClick={startPlaying}
+              className="w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-bold hover:bg-blue-600 active:scale-95 transition-all"
+            >
+              EMPEZAR JUEGO
+            </button>
+          </div>
         </div>
       )}
 
       {(gameState.phase === 'playing' || gameState.phase === 'game-over') && (
         <>
-          <div className="flex-1 flex flex-col p-2">
+          <div className="flex-1 flex flex-col p-2 relative">
             <Scoreboard
               redScore={gameState.redScore}
               blueScore={gameState.blueScore}
@@ -184,7 +195,7 @@ export default function Game() {
               blueTotal={blueTotal}
             />
             
-            <div className="flex-1 flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center overflow-y-auto min-h-0">
               <GameGrid
                 cards={gameState.cards}
                 onCardReveal={handleCardReveal}
@@ -193,7 +204,7 @@ export default function Game() {
               />
             </div>
 
-            <div className="flex justify-center space-x-2 p-2">
+            <div className="sticky bottom-0 bg-gray-100 flex justify-center space-x-2 p-2">
               {gameState.phase === 'playing' && (
                 <button
                   onClick={handleEmergencyColors}

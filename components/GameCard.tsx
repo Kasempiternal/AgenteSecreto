@@ -67,17 +67,20 @@ export default function GameCard({ card, onReveal, showColors, disabled }: GameC
         ${getLeaderBorder()}
         ${isFlipping ? 'card-flip' : ''}
         ${card.revealed && card.type === 'assassin' ? 'assassin-death' : ''}
-        ${!disabled && !card.revealed ? 'hover:scale-105 active:scale-95' : ''}
+        ${!disabled && !card.revealed ? 'hover:scale-105 hover:shadow-lg active:scale-95' : ''}
         ${disabled || card.revealed ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${card.revealed && (card.type === 'red' || card.type === 'blue') ? 'animate-pulse' : ''}
         flex items-center justify-center p-2
+        transform perspective-1000
       `}
     >
       <span className={`
         text-center font-bold
         ${card.revealed || showColors ? 'text-sm sm:text-base' : 'text-xs sm:text-sm text-gray-800'}
         ${card.revealed ? 'opacity-60' : ''}
+        ${card.revealed && card.type === 'assassin' ? 'text-red-500 text-2xl' : ''}
       `}>
-        {card.word}
+        {card.revealed && card.type === 'assassin' ? '💀' : card.word}
       </span>
     </button>
   );
