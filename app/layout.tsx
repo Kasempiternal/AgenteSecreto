@@ -13,9 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Agente Secreto",
-  description: "Juego de palabras en equipo",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
+  title: "Agente Secreto - Operación Clasificada",
+  description: "Juego de espías y palabras en código",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover",
+  themeColor: "#0a0a0a",
 };
 
 export default function RootLayout({

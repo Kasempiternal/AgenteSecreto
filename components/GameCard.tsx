@@ -24,19 +24,19 @@ export default function GameCard({ card, onReveal, showColors, disabled }: GameC
   };
 
   const getCardColor = () => {
-    if (!card.revealed && !showColors) return 'bg-white border-2 border-gray-300';
+    if (!card.revealed && !showColors) return 'spy-card';
     
     switch (card.type) {
       case 'red':
-        return 'bg-red-500 text-white border-red-600';
+        return 'bg-gradient-to-br from-red-600 to-red-800 text-white border-2 border-red-900 shadow-lg shadow-red-500/50';
       case 'blue':
-        return 'bg-blue-500 text-white border-blue-600';
+        return 'bg-gradient-to-br from-blue-600 to-blue-800 text-white border-2 border-blue-900 shadow-lg shadow-blue-500/50';
       case 'neutral':
-        return 'bg-gray-400 text-white border-gray-500';
+        return 'bg-gradient-to-br from-gray-500 to-gray-700 text-white border-2 border-gray-800';
       case 'assassin':
-        return 'bg-black text-white border-gray-900';
+        return 'bg-black text-red-500 border-2 border-red-900 shadow-lg shadow-red-500/70';
       default:
-        return 'bg-white border-gray-300';
+        return 'spy-card';
     }
   };
 
@@ -45,13 +45,13 @@ export default function GameCard({ card, onReveal, showColors, disabled }: GameC
     
     switch (card.type) {
       case 'red':
-        return 'ring-4 ring-red-500 ring-inset';
+        return 'ring-4 ring-red-500 ring-inset shadow-inner';
       case 'blue':
-        return 'ring-4 ring-blue-500 ring-inset';
+        return 'ring-4 ring-blue-500 ring-inset shadow-inner';
       case 'neutral':
-        return 'ring-4 ring-gray-400 ring-inset';
+        return 'ring-4 ring-gray-500 ring-inset shadow-inner';
       case 'assassin':
-        return 'ring-4 ring-black ring-inset';
+        return 'ring-4 ring-red-900 ring-inset shadow-inner animate-pulse';
       default:
         return '';
     }
@@ -62,25 +62,25 @@ export default function GameCard({ card, onReveal, showColors, disabled }: GameC
       onClick={handleClick}
       disabled={disabled || card.revealed}
       className={`
-        relative w-full h-full rounded-lg shadow-md transition-all duration-300
+        relative w-full h-full rounded-lg transition-all duration-300
         ${getCardColor()}
         ${getLeaderBorder()}
         ${isFlipping ? 'card-flip' : ''}
         ${card.revealed && card.type === 'assassin' ? 'assassin-death' : ''}
-        ${!disabled && !card.revealed ? 'hover:scale-105 hover:shadow-lg active:scale-95' : ''}
-        ${disabled || card.revealed ? 'cursor-not-allowed' : 'cursor-pointer'}
-        ${card.revealed && (card.type === 'red' || card.type === 'blue') ? 'animate-pulse' : ''}
+        ${!disabled && !card.revealed ? 'hover:scale-105 active:scale-95' : ''}
+        ${disabled || card.revealed ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}
+        ${card.revealed && (card.type === 'red' || card.type === 'blue') ? 'win-celebration' : ''}
         flex items-center justify-center p-2
         transform perspective-1000
       `}
     >
       <span className={`
-        text-center font-bold
-        ${card.revealed || showColors ? 'text-sm sm:text-base' : 'text-xs sm:text-sm text-gray-800'}
-        ${card.revealed ? 'opacity-60' : ''}
-        ${card.revealed && card.type === 'assassin' ? 'text-red-500 text-2xl' : ''}
+        text-center font-bold uppercase tracking-wider
+        ${card.revealed || showColors ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}
+        ${card.revealed ? 'opacity-80' : ''}
+        ${card.revealed && card.type === 'assassin' ? 'text-red-500 text-3xl animate-pulse' : ''}
       `}>
-        {card.revealed && card.type === 'assassin' ? '💀' : card.word}
+        {card.revealed && card.type === 'assassin' ? '☠️ ELIMINADO ☠️' : card.word}
       </span>
     </button>
   );
